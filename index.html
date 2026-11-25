@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manin DP | Computer Science Educator & EdTech Specialist</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        olive: {
+                            50: '#f5f7f3',
+                            100: '#e7ece2',
+                            200: '#d0dac6',
+                            300: '#aebf9e',
+                            400: '#889f74',
+                            500: '#6a8255',
+                            600: '#556b2f', /* Primary Olive matching shirt */
+                            700: '#4b5842', /* Deep Forest Olive */
+                            800: '#39462f',
+                            900: '#2f3a27',
+                        },
+                        sand: {
+                            50: '#fcfbf9',
+                            100: '#f7f5f0',
+                            200: '#ede9df',
+                            300: '#dfd8c8',
+                            800: '#4a4238',
+                            900: '#2e2923',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Print Styles for Clean Resume Export */
+        @media print {
+            nav, #contact-form-card, .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            section {
+                padding-top: 1.5rem !important;
+                padding-bottom: 1.5rem !important;
+                break-inside: avoid;
+            }
+        }
+        .glass-nav {
+            background: rgba(252, 251, 249, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-sand-50 text-stone-800 font-sans antialiased selection:bg-olive-200 selection:text-olive-900">
+
+    <!-- Toast Notification Container (Replaces alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="glass-nav sticky top-0 z-40 border-b border-sand-200 transition-all">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <!-- Brand / Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-olive-700 text-white flex items-center justify-center font-display font-bold text-lg shadow-sm group-hover:bg-olive-600 transition">
+                        M
+                    </div>
+                    <div>
+                        <span class="font-display font-bold text-lg text-stone-900 tracking-tight block leading-none">MANIN DP</span>
+                        <span class="text-xs text-olive-700 font-medium">CS Educator & EdTech</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-sm font-medium text-stone-600 hover:text-olive-700 transition">About & Pedagogy</a>
+                    <a href="#experience" class="text-sm font-medium text-stone-600 hover:text-olive-700 transition">Experience</a>
+                    <a href="#skills" class="text-sm font-medium text-stone-600 hover:text-olive-700 transition">Skills & Stack</a>
+                    <a href="#education" class="text-sm font-medium text-stone-600 hover:text-olive-700 transition">Education</a>
+                    <a href="#contact" class="px-4 py-2.5 rounded-xl bg-olive-700 text-white text-sm font-medium hover:bg-olive-600 transition shadow-sm">
+                        Get in Touch
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" aria-label="Toggle Menu" class="p-2.5 rounded-xl text-stone-700 hover:bg-sand-200 transition">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Navigation -->
+        <div id="mobile-menu" class="hidden md:hidden bg-sand-50 border-b border-sand-200 px-4 pt-2 pb-5 space-y-2 shadow-lg">
+            <a href="#about" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">About & Pedagogy</a>
+            <a href="#experience" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">Experience</a>
+            <a href="#skills" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">Skills & Stack</a>
+            <a href="#education" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">Education</a>
+            <a href="#contact" class="mobile-link block px-4 py-3 rounded-xl text-base font-semibold bg-olive-700 text-white text-center mt-2">Contact Me</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden pt-10 pb-16 sm:pt-16 sm:pb-24 bg-gradient-to-b from-sand-100 via-sand-50 to-white">
+        <!-- Decorative Subtle Background Accents -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-olive-100/60 blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-sand-200/70 blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                
+                <!-- Left Column: Introduction & CTA -->
+                <div class="lg:col-span-7 text-center lg:text-left order-2 lg:order-1">
+                    <!-- Status Pill -->
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-olive-100 border border-olive-200 text-olive-800 text-xs sm:text-sm font-semibold mb-6">
+                        <span class="w-2 h-2 rounded-full bg-olive-600 animate-pulse"></span>
+                        TGT Computer Science • Waghadi, Maharashtra & Kerala
+                    </div>
+
+                    <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-stone-900 tracking-tight leading-[1.12] mb-5">
+                        Inspiring Young Minds Through <span class="text-olive-700">Code, Creativity & Tech</span>
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-stone-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
+                        Hi, I'm <strong class="text-stone-900 font-semibold">Manin DP</strong> — a Computer Science Graduate with a <strong class="text-olive-800 font-semibold">D.El.Ed.</strong> certification. Bridging technical expertise with compassionate classroom leadership, I empower multilingual learners across primary and secondary education with foundational computing, logic, and modern AI literacy.
+                    </p>
+
+                    <!-- Highlight Badges -->
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-2.5 mb-8">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-sand-200 shadow-sm text-xs sm:text-sm font-medium text-stone-700">
+                            <i data-lucide="award" class="w-4 h-4 text-olive-600"></i> D.El.Ed. & B.Sc. CS
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-sand-200 shadow-sm text-xs sm:text-sm font-medium text-stone-700">
+                            <i data-lucide="languages" class="w-4 h-4 text-olive-600"></i> 4-Language Educator
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-sand-200 shadow-sm text-xs sm:text-sm font-medium text-stone-700">
+                            <i data-lucide="cpu" class="w-4 h-4 text-olive-600"></i> ERP & Lab Admin
+                        </span>
+                    </div>
+
+                    <!-- Primary Action Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 no-print">
+                        <a href="#contact" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-olive-700 text-white font-semibold text-sm sm:text-base hover:bg-olive-600 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <i data-lucide="mail" class="w-4 h-4"></i> Contact for Opportunities
+                        </a>
+                        <button onclick="window.print()" class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white border border-stone-300 text-stone-800 font-semibold text-sm sm:text-base hover:bg-sand-100 transition shadow-sm flex items-center justify-center gap-2">
+                            <i data-lucide="printer" class="w-4 h-4 text-olive-700"></i> Print / Save PDF Resume
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Portrait Frame -->
+                <div class="lg:col-span-5 order-1 lg:order-2 flex justify-center">
+                    <div class="relative w-full max-w-sm sm:max-w-md">
+                        <!-- Decorative Olive Backplate -->
+                        <div class="absolute -inset-3 rounded-[2rem] bg-gradient-to-tr from-olive-700 via-olive-500 to-sand-300 opacity-20 blur-sm transform rotate-2"></div>
+                        <div class="absolute inset-0 rounded-[2rem] border-2 border-olive-600/30 transform -rotate-2"></div>
+                        
+                        <!-- Main Image Card -->
+                        <div class="relative rounded-[1.75rem] overflow-hidden bg-gradient-to-b from-sand-100 to-white border-4 border-white shadow-xl">
+                            <img 
+                                src="Friendly Teacher in Olive and White.png" 
+                                alt="Manin DP - Computer Science Teacher" 
+                                class="w-full h-auto object-cover object-top aspect-[4/5] transform hover:scale-[1.02] transition duration-500"
+                                onerror="this.onerror=null; this.src='https://placehold.co/600x750/4b5842/ffffff?text=Manin+DP+%0ACS+Educator';"
+                            >
+                            <!-- Floating Credential Overlay Card -->
+                            <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl shadow-lg border border-sand-200 flex items-center justify-between">
+                                <div>
+                                    <p class="font-display font-bold text-stone-900 text-sm sm:text-base">Manin DP</p>
+                                    <p class="text-xs text-olive-700 font-medium">Computer Science & EdTech</p>
+                                </div>
+                                <div class="flex items-center gap-1.5 bg-olive-50 px-2.5 py-1.5 rounded-xl border border-olive-200">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600"></i>
+                                    <span class="text-xs font-bold text-olive-800">D.El.Ed.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Key Metrics & Teaching Philosophy Section -->
+    <section id="about" class="py-16 sm:py-20 bg-white border-y border-sand-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Quick Impact Numbers -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-16">
+                <div class="p-5 sm:p-6 rounded-2xl bg-sand-50 border border-sand-200 text-center">
+                    <div class="w-10 h-10 mx-auto mb-3 rounded-xl bg-olive-100 text-olive-700 flex items-center justify-center">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-display text-2xl sm:text-3xl font-extrabold text-stone-900">100+</p>
+                    <p class="text-xs sm:text-sm text-stone-600 font-medium mt-1">Students Mentored & Guided</p>
+                </div>
+                <div class="p-5 sm:p-6 rounded-2xl bg-sand-50 border border-sand-200 text-center">
+                    <div class="w-10 h-10 mx-auto mb-3 rounded-xl bg-olive-100 text-olive-700 flex items-center justify-center">
+                        <i data-lucide="map-pin" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-display text-2xl sm:text-3xl font-extrabold text-stone-900">2 States</p>
+                    <p class="text-xs sm:text-sm text-stone-600 font-medium mt-1">Kerala & Maharashtra Schools</p>
+                </div>
+                <div class="p-5 sm:p-6 rounded-2xl bg-sand-50 border border-sand-200 text-center">
+                    <div class="w-10 h-10 mx-auto mb-3 rounded-xl bg-olive-100 text-olive-700 flex items-center justify-center">
+                        <i data-lucide="globe" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-display text-2xl sm:text-3xl font-extrabold text-stone-900">4 Languages</p>
+                    <p class="text-xs sm:text-sm text-stone-600 font-medium mt-1">Multilingual Classroom Reach</p>
+                </div>
+                <div class="p-5 sm:p-6 rounded-2xl bg-sand-50 border border-sand-200 text-center">
+                    <div class="w-10 h-10 mx-auto mb-3 rounded-xl bg-olive-100 text-olive-700 flex items-center justify-center">
+                        <i data-lucide="monitor-check" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-display text-2xl sm:text-3xl font-extrabold text-stone-900">30+ / Lab</p>
+                    <p class="text-xs sm:text-sm text-stone-600 font-medium mt-1">Hands-on Practical Sessions</p>
+                </div>
+            </div>
+
+            <!-- Philosophy & Multilingual Advantage -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+                <div class="lg:col-span-7">
+                    <span class="text-xs font-bold uppercase tracking-wider text-olive-700">Teaching Philosophy</span>
+                    <h2 class="font-display text-2xl sm:text-3xl font-bold text-stone-900 mt-1 mb-4">
+                        Making Technology Accessible, Engaging & Human-Centered
+                    </h2>
+                    <div class="space-y-4 text-stone-600 text-sm sm:text-base leading-relaxed">
+                        <p>
+                            Combining a <strong class="text-stone-800">Bachelor of Science in Computer Science</strong> with a <strong class="text-stone-800">Diploma in Elementary Education (D.El.Ed.)</strong>, I approach teaching with both deep technical command and child-centered pedagogical insight.
+                        </p>
+                        <p>
+                            Whether introducing primary learners (Classes 1–4) to computational thinking through <strong class="text-stone-800">ScratchJr and Scratch</strong>, guiding older students in <strong class="text-stone-800">Python, C++, and AI Literacy</strong>, or managing school-wide <strong class="text-stone-800">ERP systems and computer labs</strong> with zero downtime, my focus is always on active, joyful, and structured learning.
+                        </p>
+                    </div>
+
+                    <!-- 3 Core Pillars -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                        <div class="p-4 rounded-xl bg-olive-50/70 border border-olive-100">
+                            <h3 class="font-display font-bold text-olive-900 text-sm mb-1">Activity-Based</h3>
+                            <p class="text-xs text-stone-600">Learning by doing through coding blocks, hardware labs, and digital creation.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-olive-50/70 border border-olive-100">
+                            <h3 class="font-display font-bold text-olive-900 text-sm mb-1">Empathetic Support</h3>
+                            <p class="text-xs text-stone-600">Adapting pace and explanations to each student's unique learning style.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-olive-50/70 border border-olive-100">
+                            <h3 class="font-display font-bold text-olive-900 text-sm mb-1">Tech Leadership</h3>
+                            <p class="text-xs text-stone-600">Streamlining institutional workflows with ERP, AV media, and lab care.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multilingual Advantage Card -->
+                <div class="lg:col-span-5 bg-olive-800 text-white rounded-3xl p-6 sm:p-8 shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-olive-600/30 rounded-full -mr-10 -mt-10"></div>
+                    <div class="relative z-10">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-olive-700/80 text-olive-100 text-xs font-semibold mb-4">
+                            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Multilingual Classroom Bridge
+                        </div>
+                        <h3 class="font-display text-xl sm:text-2xl font-bold mb-2">Connecting Across Cultures</h3>
+                        <p class="text-olive-100/90 text-xs sm:text-sm leading-relaxed mb-6">
+                            With hands-on teaching experience in both <strong class="text-white">Kerala</strong> and <strong class="text-white">Maharashtra</strong>, I effortlessly bridge language barriers to ensure every student grasps complex technical concepts.
+                        </p>
+
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs sm:text-sm font-medium mb-1.5">
+                                    <span>English</span>
+                                    <span class="text-olive-200">Fluent (Instructional)</span>
+                                </div>
+                                <div class="w-full h-2 bg-olive-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-sand-200 rounded-full" style="width: 96%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs sm:text-sm font-medium mb-1.5">
+                                    <span>Malayalam</span>
+                                    <span class="text-olive-200">Fluent / Native</span>
+                                </div>
+                                <div class="w-full h-2 bg-olive-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-sand-200 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs sm:text-sm font-medium mb-1.5">
+                                    <span>Tamil</span>
+                                    <span class="text-olive-200">Fluent</span>
+                                </div>
+                                <div class="w-full h-2 bg-olive-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-sand-200 rounded-full" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs sm:text-sm font-medium mb-1.5">
+                                    <span>Hindi</span>
+                                    <span class="text-olive-200">Intermediate (Classroom & Conversational)</span>
+                                </div>
+                                <div class="w-full h-2 bg-olive-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-olive-400 rounded-full" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Experience Timeline -->
+    <section id="experience" class="py-16 sm:py-24 bg-sand-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-wider text-olive-700">Career Journey</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-900 mt-1 mb-3">
+                    Teaching & Technical Experience
+                </h2>
+                <p class="text-sm sm:text-base text-stone-600">
+                    Over a decade of progressive experience spanning classroom instruction, educational counseling, C++ mentoring, and systems administration.
+                </p>
+
+                <!-- Filter Tabs -->
+                <div class="inline-flex flex-wrap justify-center gap-2 mt-6 p-1.5 bg-sand-200/70 rounded-2xl no-print">
+                    <button onclick="filterExperience('all')" class="exp-filter-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-olive-700 text-white shadow-sm transition" data-filter="all">
+                        All Roles (5)
+                    </button>
+                    <button onclick="filterExperience('teaching')" class="exp-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-stone-700 hover:bg-white/60 transition" data-filter="teaching">
+                        School Teaching & EdTech
+                    </button>
+                    <button onclick="filterExperience('tech')" class="exp-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-stone-700 hover:bg-white/60 transition" data-filter="tech">
+                        Programming & Systems
+                    </button>
+                </div>
+            </div>
+
+            <!-- Timeline Items -->
+            <div class="relative border-l-2 border-olive-300 ml-3 sm:ml-6 space-y-8" id="experience-list">
+
+                <!-- Role 1 -->
+                <div class="exp-item relative pl-7 sm:pl-10" data-category="teaching">
+                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-olive-700 ring-4 ring-sand-50"></span>
+                    <div class="bg-white rounded-2xl p-6 sm:p-7 border border-sand-200 shadow-sm hover:shadow-md transition">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <div>
+                                <span class="inline-block px-2.5 py-0.5 rounded-lg bg-olive-100 text-olive-800 text-xs font-bold mb-1.5">Current Role</span>
+                                <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">TGT Computer Science</h3>
+                                <p class="text-sm font-semibold text-olive-700">Jayshreeben Amrishbhai Patel School • Waghadi, Maharashtra</p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sand-100 text-stone-700 text-xs font-semibold self-start">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2025 – Present
+                            </span>
+                        </div>
+                        <ul class="space-y-2 text-sm text-stone-600 mt-4">
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Delivered engaging Computer Science curricula and maintained constructive classroom discipline to foster high student performance.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Administered the school Enterprise Resource Planning (ERP) platform to ensure accurate student records and streamlined administrative workflows.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Managed computer laboratory hardware, software setups, and routine maintenance to guarantee zero operational downtime.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Produced digital graphics and audio-visual media for institutional branding, school events, and academic presentations.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Integrated modern multimedia tools into daily instructional delivery to boost engagement and concept retention.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Role 2 -->
+                <div class="exp-item relative pl-7 sm:pl-10" data-category="teaching">
+                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-olive-500 ring-4 ring-sand-50"></span>
+                    <div class="bg-white rounded-2xl p-6 sm:p-7 border border-sand-200 shadow-sm hover:shadow-md transition">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <div>
+                                <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">Asst. Teacher — Computer Science</h3>
+                                <p class="text-sm font-semibold text-olive-700">CSI English Medium School • Kerala, India</p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sand-100 text-stone-700 text-xs font-semibold self-start">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2024 – 2025
+                            </span>
+                        </div>
+                        <ul class="space-y-2 text-sm text-stone-600 mt-4">
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Taught foundational digital literacy, hardware basics, and internet safety to lower primary students (Classes 1–4).</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Introduced early computational thinking and logic through visual block-based coding platforms (<strong class="text-stone-800">ScratchJr & Scratch</strong>).</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Guided young learners in document creation, keyboarding, and digital art using MS Office Suite and Paint.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Managed weekly practical lab sessions of 30+ students, emphasizing safety and hands-on learning, while recording progress in the school ERP.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Role 3 -->
+                <div class="exp-item relative pl-7 sm:pl-10" data-category="teaching">
+                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-olive-500 ring-4 ring-sand-50"></span>
+                    <div class="bg-white rounded-2xl p-6 sm:p-7 border border-sand-200 shadow-sm hover:shadow-md transition">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <div>
+                                <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">Education Counselor</h3>
+                                <p class="text-sm font-semibold text-olive-700">Byju's Edutech</p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sand-100 text-stone-700 text-xs font-semibold self-start">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2020 – 2022
+                            </span>
+                        </div>
+                        <ul class="space-y-2 text-sm text-stone-600 mt-4">
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Mentored and guided 100+ students toward academic success and personalized learning goals.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Collaborated with educators to refine curriculum relevance and advocated for student-centric academic support policies.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Trained new counselors and utilized data analytics to monitor student milestones and learning outcomes.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Role 4 -->
+                <div class="exp-item relative pl-7 sm:pl-10" data-category="tech">
+                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-stone-400 ring-4 ring-sand-50"></span>
+                    <div class="bg-white rounded-2xl p-6 sm:p-7 border border-sand-200 shadow-sm hover:shadow-md transition">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <div>
+                                <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">Tutor & Programmer</h3>
+                                <p class="text-sm font-semibold text-olive-700">JTEC</p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sand-100 text-stone-700 text-xs font-semibold self-start">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2021 – 2022
+                            </span>
+                        </div>
+                        <ul class="space-y-2 text-sm text-stone-600 mt-4">
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Designed structured instructional plans, coding tutorials, and practical exercises for <strong class="text-stone-800">C++ programming</strong>.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Facilitated independent problem-solving and provided constructive, empathetic code reviews tailored to diverse learner paces.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Role 5 -->
+                <div class="exp-item relative pl-7 sm:pl-10" data-category="tech">
+                    <span class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-stone-400 ring-4 ring-sand-50"></span>
+                    <div class="bg-white rounded-2xl p-6 sm:p-7 border border-sand-200 shadow-sm hover:shadow-md transition">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <div>
+                                <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">Programmer & System Administrator</h3>
+                                <p class="text-sm font-semibold text-olive-700">JTEC</p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sand-100 text-stone-700 text-xs font-semibold self-start">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2014 – 2017
+                            </span>
+                        </div>
+                        <ul class="space-y-2 text-sm text-stone-600 mt-4">
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Managed group lab environments, assigned student programming modules, and maintained system reliability.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="check" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                <span>Debugged production issues, optimized code efficiency, and contributed across the full Software Development Life Cycle (SDLC).</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Competencies & Technical Stack -->
+    <section id="skills" class="py-16 sm:py-24 bg-white border-t border-sand-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-14">
+                <span class="text-xs font-bold uppercase tracking-wider text-olive-700">Expertise & Toolkit</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-900 mt-1 mb-3">
+                    Core Competencies & Tech Stack
+                </h2>
+                <p class="text-sm sm:text-base text-stone-600">
+                    A balanced fusion of classroom pedagogy, educational technology administration, creative multimedia, and software development.
+                </p>
+            </div>
+
+            <!-- 3 Competency Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
+                <!-- Card 1: Pedagogy -->
+                <div class="p-6 sm:p-7 rounded-3xl bg-sand-50 border border-sand-200 hover:border-olive-300 transition">
+                    <div class="w-12 h-12 rounded-2xl bg-olive-700 text-white flex items-center justify-center mb-5 shadow-sm">
+                        <i data-lucide="book-open-check" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900 mb-3">Pedagogy & Instruction</h3>
+                    <ul class="space-y-2.5 text-sm text-stone-600">
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Curriculum & Technical Instruction</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Pedagogy & Classroom Management</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Applied Computing & Tech Leadership</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Student Mentoring & Assessment</li>
+                    </ul>
+                </div>
+
+                <!-- Card 2: EdTech & Lab Admin -->
+                <div class="p-6 sm:p-7 rounded-3xl bg-sand-50 border border-sand-200 hover:border-olive-300 transition">
+                    <div class="w-12 h-12 rounded-2xl bg-olive-700 text-white flex items-center justify-center mb-5 shadow-sm">
+                        <i data-lucide="server-cog" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900 mb-3">EdTech & Lab Administration</h3>
+                    <ul class="space-y-2.5 text-sm text-stone-600">
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> School ERP Administration</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Computer Lab & Hardware Maintenance</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Applied AI & Modern Tech Literacy</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Digital Safety & Primary Lab Management</li>
+                    </ul>
+                </div>
+
+                <!-- Card 3: Creative & Programming -->
+                <div class="p-6 sm:p-7 rounded-3xl bg-sand-50 border border-sand-200 hover:border-olive-300 transition">
+                    <div class="w-12 h-12 rounded-2xl bg-olive-700 text-white flex items-center justify-center mb-5 shadow-sm">
+                        <i data-lucide="palette" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900 mb-3">Programming & Multimedia</h3>
+                    <ul class="space-y-2.5 text-sm text-stone-600">
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Practical & Applied Programming</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Graphic Design & Digital Illustration</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Audio-Visual Editing & Event Media</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-olive-600"></span> Visual Block Coding (Scratch / ScratchJr)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Technical Tools Pill Cloud -->
+            <div class="bg-olive-50/80 border border-olive-200/80 rounded-3xl p-6 sm:p-8">
+                <h3 class="font-display text-base sm:text-lg font-bold text-olive-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="terminal" class="w-5 h-5 text-olive-700"></i> Technical Stack & Software Proficiency
+                </h3>
+                <div class="flex flex-wrap gap-2.5 sm:gap-3">
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> Python
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> C++ & C
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> HTML & Web Basics
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> App Development
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> AI Prompt Engineering
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> Scratch & ScratchJr
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> School ERP Platforms
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> Microsoft Office Suite
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> Google Workspace
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white border border-olive-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-olive-600"></span> Audio-Visual & Graphic Suites
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education & Certifications -->
+    <section id="education" class="py-16 sm:py-24 bg-sand-50 border-t border-sand-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-14">
+                <span class="text-xs font-bold uppercase tracking-wider text-olive-700">Academic Background</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-900 mt-1 mb-3">
+                    Education & Professional Certifications
+                </h2>
+                <p class="text-sm sm:text-base text-stone-600">
+                    Formal qualifications in both elementary pedagogy and computer science hardware & software.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                <!-- Degree 1: D.El.Ed. -->
+                <div class="bg-white p-6 rounded-2xl border-2 border-olive-600/30 shadow-sm relative">
+                    <span class="inline-block px-2.5 py-1 rounded-lg bg-olive-100 text-olive-800 text-xs font-bold mb-3">Teaching Qualification</span>
+                    <h3 class="font-display text-lg font-bold text-stone-900">D.El.Ed. (Diploma in Elementary Education)</h3>
+                    <p class="text-sm text-stone-600 mt-1">Certified Elementary & Foundational Educator</p>
+                </div>
+
+                <!-- Degree 2: B.Sc. Computer Science -->
+                <div class="bg-white p-6 rounded-2xl border border-sand-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-sand-100 text-stone-700 text-xs font-bold">2017 – 2020</span>
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">B.Sc. Computer Science</h3>
+                    <p class="text-sm text-olive-700 font-medium mt-1">Emmanuel College, Vazhichal, Kerala</p>
+                </div>
+
+                <!-- Cert 3: Certificate in C++ -->
+                <div class="bg-white p-6 rounded-2xl border border-sand-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-sand-100 text-stone-700 text-xs font-bold">2020</span>
+                        <i data-lucide="code-2" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">Certificate in C++</h3>
+                    <p class="text-sm text-olive-700 font-medium mt-1">JTEC, ITEC</p>
+                </div>
+
+                <!-- Cert 4: Diploma in Computer Hardware -->
+                <div class="bg-white p-6 rounded-2xl border border-sand-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-sand-100 text-stone-700 text-xs font-bold">2013 – 2014</span>
+                        <i data-lucide="cpu" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">Diploma in Computer Hardware</h3>
+                    <p class="text-sm text-olive-700 font-medium mt-1">JTEC, ITEC</p>
+                </div>
+
+                <!-- Cert 5: Certificate in Computer Teacher Training -->
+                <div class="bg-white p-6 rounded-2xl border border-sand-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-sand-100 text-stone-700 text-xs font-bold">2012 – 2013</span>
+                        <i data-lucide="award" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">Certificate in Computer Teacher Training</h3>
+                    <p class="text-sm text-olive-700 font-medium mt-1">JTEC, ITEC</p>
+                </div>
+
+                <!-- Schooling: HSC & SSLC -->
+                <div class="bg-white p-6 rounded-2xl border border-sand-200 shadow-sm">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-sand-100 text-stone-700 text-xs font-bold">HSC (2011–2012) & SSLC</span>
+                        <i data-lucide="school" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">Higher Secondary & SSLC</h3>
+                    <p class="text-sm text-olive-700 font-medium mt-1">St. John's HSS Undancode, Kerala</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 sm:py-24 bg-olive-900 text-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+                
+                <!-- Contact Details Column -->
+                <div class="lg:col-span-6">
+                    <span class="text-xs font-bold uppercase tracking-wider text-olive-300">Connect & Collaborate</span>
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-1 mb-4">
+                        Let's Discuss Academic & EdTech Roles
+                    </h2>
+                    <p class="text-olive-100/85 text-sm sm:text-base leading-relaxed mb-8">
+                        Available for Computer Science teaching positions, EdTech coordination, curriculum design, and computer lab administration roles. Feel free to reach out directly via phone, email, or the message form.
+                    </p>
+
+                    <div class="space-y-4">
+                        <!-- Phone Card -->
+                        <div class="p-4 rounded-2xl bg-olive-800/80 border border-olive-700 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 rounded-xl bg-olive-700 flex items-center justify-center text-olive-200 shrink-0">
+                                    <i data-lucide="phone" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-olive-300 font-medium">Phone / WhatsApp</p>
+                                    <a href="tel:+917994147114" class="text-sm sm:text-base font-bold text-white hover:underline">+91 7994147114</a>
+                                </div>
+                            </div>
+                            <button onclick="copyText('+91 7994147114', 'Phone number')" class="px-3 py-2 rounded-xl bg-olive-700 hover:bg-olive-600 text-xs font-semibold text-white transition flex items-center gap-1.5 no-print">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+                            </button>
+                        </div>
+
+                        <!-- Email Card -->
+                        <div class="p-4 rounded-2xl bg-olive-800/80 border border-olive-700 flex items-center justify-between gap-4">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <div class="w-11 h-11 rounded-xl bg-olive-700 flex items-center justify-center text-olive-200 shrink-0">
+                                    <i data-lucide="mail" class="w-5 h-5"></i>
+                                </div>
+                                <div class="truncate">
+                                    <p class="text-xs text-olive-300 font-medium">Email Address</p>
+                                    <a href="mailto:manindp123@gmail.com" class="text-sm sm:text-base font-bold text-white hover:underline truncate block">manindp123@gmail.com</a>
+                                </div>
+                            </div>
+                            <button onclick="copyText('manindp123@gmail.com', 'Email address')" class="px-3 py-2 rounded-xl bg-olive-700 hover:bg-olive-600 text-xs font-semibold text-white transition flex items-center gap-1.5 shrink-0 no-print">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+                            </button>
+                        </div>
+
+                        <!-- Permanent Address Card -->
+                        <div class="p-4 rounded-2xl bg-olive-800/80 border border-olive-700 flex items-start gap-3.5">
+                            <div class="w-11 h-11 rounded-xl bg-olive-700 flex items-center justify-center text-olive-200 shrink-0 mt-0.5">
+                                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-olive-300 font-medium">Locations & Permanent Address</p>
+                                <p class="text-sm font-semibold text-white mt-0.5">Currently Teaching: Waghadi, Maharashtra</p>
+                                <p class="text-xs sm:text-sm text-olive-200 mt-1">
+                                    Permanent: Deepnam, Kottukonam, Elluvila PO, Thiruvananthapuram (TVM), Kerala, India 695504
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Message Form -->
+                <div id="contact-form-card" class="lg:col-span-6 bg-white text-stone-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+                    <h3 class="font-display text-xl sm:text-2xl font-bold text-stone-900 mb-1">Send a Direct Message</h3>
+                    <p class="text-xs sm:text-sm text-stone-500 mb-6">Have a teaching opportunity or inquiry? Compose a quick message below.</p>
+
+                    <form id="contact-form" class="space-y-4">
+                        <div>
+                            <label for="sender-name" class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Your Name / Institution</label>
+                            <input type="text" id="sender-name" required placeholder="e.g., Principal, St. Xavier's High School" class="w-full px-4 py-3 rounded-xl bg-sand-50 border border-stone-200 text-sm focus:outline-none focus:border-olive-600 focus:ring-2 focus:ring-olive-600/20 transition">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="sender-email" class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Email Address</label>
+                                <input type="email" id="sender-email" required placeholder="name@school.edu" class="w-full px-4 py-3 rounded-xl bg-sand-50 border border-stone-200 text-sm focus:outline-none focus:border-olive-600 focus:ring-2 focus:ring-olive-600/20 transition">
+                            </div>
+                            <div>
+                                <label for="inquiry-type" class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Subject</label>
+                                <select id="inquiry-type" class="w-full px-4 py-3 rounded-xl bg-sand-50 border border-stone-200 text-sm focus:outline-none focus:border-olive-600 focus:ring-2 focus:ring-olive-600/20 transition">
+                                    <option value="Teaching Opportunity">Teaching Position (CS / TGT / PRT)</option>
+                                    <option value="EdTech / ERP Role">EdTech & Lab Administration</option>
+                                    <option value="Workshop / Tutoring">Programming / AI Workshop</option>
+                                    <option value="General Inquiry">General Connection</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="sender-message" class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Message</label>
+                            <textarea id="sender-message" rows="4" required placeholder="Hello Manin, we reviewed your profile and would love to discuss..." class="w-full px-4 py-3 rounded-xl bg-sand-50 border border-stone-200 text-sm focus:outline-none focus:border-olive-600 focus:ring-2 focus:ring-olive-600/20 transition resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-olive-700 hover:bg-olive-600 text-white font-semibold text-sm sm:text-base shadow-md transition flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> Send Message to Manin DP
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-stone-950 text-stone-400 py-8 border-t border-stone-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-olive-500"></span>
+                <span class="font-semibold text-stone-200">MANIN DP</span> — Computer Science Educator & EdTech Specialist
+            </div>
+            <p>&copy; 2026 Manin DP. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // Initialize Lucide Icons
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+
+        // Mobile Navigation Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Experience Timeline Filter Logic
+        function filterExperience(category) {
+            const items = document.querySelectorAll('.exp-item');
+            const buttons = document.querySelectorAll('.exp-filter-btn');
+
+            buttons.forEach(btn => {
+                if (btn.dataset.filter === category) {
+                    btn.classList.add('bg-olive-700', 'text-white', 'shadow-sm');
+                    btn.classList.remove('text-stone-700', 'hover:bg-white/60');
+                } else {
+                    btn.classList.remove('bg-olive-700', 'text-white', 'shadow-sm');
+                    btn.classList.add('text-stone-700', 'hover:bg-white/60');
+                }
+            });
+
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Custom Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-olive-800 border-olive-600' : 'bg-stone-800 border-stone-600';
+            
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border ${bgColor} text-white text-sm font-medium shadow-xl transform transition-all duration-300 translate-y-4 opacity-0`;
+            toast.innerHTML = `
+                <i data-lucide="check-circle" class="w-4 h-4 text-olive-300 shrink-0"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Copy to Clipboard using execCommand fallback for iframe compatibility
+        function copyText(text, label) {
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                showToast(`${label} copied to clipboard!`);
+            } catch (err) {
+                showToast(`Could not copy ${label}`, 'error');
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        // Contact Form Submission Handler
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('sender-name').value.trim();
+            const email = document.getElementById('sender-email').value.trim();
+            const subject = document.getElementById('inquiry-type').value;
+            const message = document.getElementById('sender-message').value.trim();
+
+            if (!name || !email || !message) return;
+
+            // Construct mailto link so user can also launch their email client seamlessly
+            const mailtoBody = encodeURIComponent(`From: ${name} (${email})\n\n${message}`);
+            const mailtoSubject = encodeURIComponent(`[Portfolio Inquiry - ${subject}] from ${name}`);
+            
+            showToast(`Thank you, ${name}! Opening your email draft for Manin DP...`);
+            
+            setTimeout(() => {
+                window.location.href = `mailto:manindp123@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+            }, 800);
+
+            this.reset();
+        });
+    </script>
+</body>
+</html>
