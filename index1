@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manin DP | Computer Science Educator & EdTech Specialist</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Space Grotesk, Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        olive: {
+                            50: '#f4f6f1',
+                            100: '#e5ebe0',
+                            200: '#cbd7c2',
+                            300: '#a7bc99',
+                            400: '#819d6f',
+                            500: '#648052',
+                            600: '#556B2F', /* Primary Olive matching portrait */
+                            700: '#4B5842', /* Deep Forest Olive */
+                            800: '#394532',
+                            900: '#2d3728',
+                            950: '#181e15',
+                        },
+                        cream: {
+                            50: '#fdfcfa',
+                            100: '#f8f5ef',
+                            200: '#efe9dd',
+                            300: '#e2d8c5',
+                        }
+                    },
+                    animation: {
+                        'float-slow': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+                        'spin-slow': 'spin 20s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-12px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 0.4, transform: 'scale(1)' },
+                            '50%': { opacity: 0.8, transform: 'scale(1.05)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Scroll Reveal Base Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: all 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.94);
+            transition: all 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Staggered Delay Utilities */
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+        .delay-400 { transition-delay: 400ms; }
+
+        /* Typewriter Cursor */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 3px;
+            background-color: #556B2F;
+            margin-left: 4px;
+            animation: blink 0.85s infinite;
+        }
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* 3D Tilt Card Perspective */
+        .tilt-wrapper {
+            perspective: 1200px;
+        }
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+        }
+        .tilt-layer-pop {
+            transform: translateZ(35px);
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(253, 252, 250, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .glass-dark {
+            background: rgba(24, 30, 21, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f8f5ef;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #819d6f;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #556B2F;
+        }
+
+        /* Print Stylesheet for Clean Resume Export */
+        @media print {
+            nav, #scroll-progress, #hero-canvas, #contact-form-card, .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: #1c1917 !important;
+            }
+            .reveal, .reveal-scale {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+            section {
+                padding-top: 1.5rem !important;
+                padding-bottom: 1.5rem !important;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="bg-cream-50 text-stone-800 font-sans antialiased selection:bg-olive-200 selection:text-olive-950 overflow-x-hidden">
+
+    <!-- Top Scroll Progress Bar -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-olive-500 via-olive-600 to-amber-500 z-50 transition-all duration-75" style="width: 0%;"></div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Sticky Glass Navigation -->
+    <nav class="glass-panel sticky top-0 z-40 border-b border-cream-200/80 transition-all">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <!-- Brand -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-olive-700 to-olive-600 text-white flex items-center justify-center font-display font-extrabold text-lg shadow-md group-hover:scale-105 transition-transform">
+                        M
+                    </div>
+                    <div>
+                        <span class="font-display font-extrabold text-lg text-stone-900 tracking-tight block leading-none">MANIN DP</span>
+                        <span class="text-xs text-olive-600 font-semibold">CS Educator & EdTech</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center space-x-7">
+                    <a href="#about" class="text-sm font-medium text-stone-600 hover:text-olive-600 transition">Philosophy</a>
+                    <a href="#experience" class="text-sm font-medium text-stone-600 hover:text-olive-600 transition">Experience</a>
+                    <a href="#skills" class="text-sm font-medium text-stone-600 hover:text-olive-600 transition">Competencies</a>
+                    <a href="#languages" class="text-sm font-medium text-stone-600 hover:text-olive-600 transition">Languages</a>
+                    <a href="#education" class="text-sm font-medium text-stone-600 hover:text-olive-600 transition">Education</a>
+                    <a href="#contact" class="magnetic-btn px-5 py-2.5 rounded-xl bg-olive-700 text-white text-sm font-semibold hover:bg-olive-600 transition shadow-sm hover:shadow-md">
+                        Hire / Connect
+                    </a>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" aria-label="Toggle Menu" class="p-2.5 rounded-xl text-stone-700 hover:bg-cream-200 transition">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-cream-50 border-b border-cream-200 px-4 pt-2 pb-5 space-y-1.5 shadow-xl">
+            <a href="#about" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">Philosophy & Impact</a>
+            <a href="#experience" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">Experience Timeline</a>
+            <a href="#skills" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">Skills & Tool Stack</a>
+            <a href="#languages" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">Languages</a>
+            <a href="#education" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-stone-700 hover:bg-olive-50 hover:text-olive-700">Education</a>
+            <a href="#contact" class="mobile-link block px-4 py-3 rounded-xl text-base font-semibold bg-olive-700 text-white text-center mt-2">Get in Touch</a>
+        </div>
+    </nav>
+
+    <!-- Animated Hero Section with Canvas Network -->
+    <header class="relative min-h-[88vh] flex items-center overflow-hidden pt-8 pb-16 sm:pt-12 sm:pb-24 bg-gradient-to-br from-cream-100 via-cream-50 to-olive-50/70">
+        <!-- Interactive Geometric Node Canvas -->
+        <canvas id="hero-canvas" class="absolute inset-0 w-full h-full pointer-events-none opacity-65"></canvas>
+
+        <!-- Ambient Glowing Blobs -->
+        <div class="absolute top-16 right-10 w-80 h-80 rounded-full bg-olive-300/25 blur-3xl animate-pulse-glow pointer-events-none"></div>
+        <div class="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-amber-200/25 blur-3xl animate-pulse-glow pointer-events-none" style="animation-delay: 1.5s;"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                
+                <!-- Left Column: Kinetic Typography & Typewriter -->
+                <div class="lg:col-span-7 text-center lg:text-left order-2 lg:order-1">
+                    <!-- Animated Availability Pill -->
+                    <div class="reveal inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-olive-200 shadow-sm text-olive-800 text-xs sm:text-sm font-semibold mb-6">
+                        <span class="relative flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-olive-500 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-olive-600"></span>
+                        </span>
+                        TGT Computer Science • Kerala & Maharashtra
+                    </div>
+
+                    <h1 class="reveal delay-100 font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-stone-900 tracking-tight leading-[1.1] mb-4">
+                        Hello, I'm <span class="bg-gradient-to-r from-olive-700 via-olive-600 to-emerald-700 bg-clip-text text-transparent">Manin DP</span>
+                    </h1>
+
+                    <!-- Dynamic Typewriter Role Line -->
+                    <div class="reveal delay-200 h-10 sm:h-12 flex items-center justify-center lg:justify-start mb-5">
+                        <span class="font-mono text-lg sm:text-2xl font-bold text-olive-700">
+                            <span id="typewriter-text">TGT Computer Science Educator</span><span class="typewriter-cursor">&nbsp;</span>
+                        </span>
+                    </div>
+
+                    <p class="reveal delay-300 text-base sm:text-lg text-stone-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
+                        Computer Science Graduate with a <strong class="text-stone-900 font-semibold">D.El.Ed.</strong> certification, blending technical mastery in programming, ERP systems, and AI literacy with empathetic classroom leadership across multilingual student communities.
+                    </p>
+
+                    <!-- Interactive Action Buttons -->
+                    <div class="reveal delay-400 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 no-print">
+                        <a href="#experience" class="magnetic-btn w-full sm:w-auto px-7 py-3.5 rounded-xl bg-olive-700 text-white font-semibold text-sm sm:text-base hover:bg-olive-600 transition-all shadow-lg shadow-olive-700/20 flex items-center justify-center gap-2 group">
+                            <span>Explore Teaching Journey</span>
+                            <i data-lucide="arrow-down-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:translate-y-0.5 transition-transform"></i>
+                        </a>
+                        <button onclick="window.print()" class="magnetic-btn w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/90 border border-stone-300 text-stone-800 font-semibold text-sm sm:text-base hover:bg-cream-100 transition shadow-sm flex items-center justify-center gap-2">
+                            <i data-lucide="printer" class="w-4 h-4 text-olive-700"></i>
+                            <span>Print / Save PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column: 3D Interactive Tilt Portrait & Floating Skill Badges -->
+                <div class="lg:col-span-5 order-1 lg:order-2 flex justify-center">
+                    <div class="tilt-wrapper relative w-full max-w-sm sm:max-w-md reveal-scale">
+                        
+                        <!-- Floating Badge Top-Left -->
+                        <div class="hidden sm:flex items-center gap-2.5 px-4 py-2.5 rounded-2xl glass-panel border border-olive-200/80 shadow-xl absolute -left-8 top-8 z-20 animate-float-slow">
+                            <div class="w-8 h-8 rounded-lg bg-olive-100 text-olive-700 flex items-center justify-center">
+                                <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-extrabold text-stone-900">B.Sc. CS + D.El.Ed.</p>
+                                <p class="text-[11px] text-olive-700 font-medium">Certified Educator</p>
+                            </div>
+                        </div>
+
+                        <!-- Floating Badge Bottom-Right -->
+                        <div class="hidden sm:flex items-center gap-2.5 px-4 py-2.5 rounded-2xl glass-panel border border-olive-200/80 shadow-xl absolute -right-6 bottom-24 z-20 animate-float-delayed">
+                            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-extrabold text-stone-900">AI & Coding Literacy</p>
+                                <p class="text-[11px] text-stone-600 font-medium">Python • C++ • Scratch</p>
+                            </div>
+                        </div>
+
+                        <!-- 3D Tilt Card -->
+                        <div id="portrait-tilt-card" class="tilt-card relative rounded-[2rem] p-2.5 bg-gradient-to-br from-olive-600/30 via-white to-cream-200 border border-white shadow-2xl">
+                            <div class="relative rounded-[1.5rem] overflow-hidden bg-gradient-to-b from-cream-100 to-white">
+                                <img 
+                                    src="Friendly Teacher in Olive and White.png" 
+                                    alt="Manin DP — Computer Science Teacher & EdTech Specialist" 
+                                    class="w-full h-auto object-cover object-top aspect-[4/5] transition-transform duration-700 hover:scale-[1.03]"
+                                    onerror="this.onerror=null; this.src='https://placehold.co/600x750/4B5842/ffffff?text=Manin+DP+%0ACS+Educator';"
+                                >
+                                <!-- Bottom Glass Info Strip -->
+                                <div class="tilt-layer-pop absolute bottom-3 left-3 right-3 glass-dark text-white p-3.5 rounded-2xl border border-white/15 shadow-lg flex items-center justify-between">
+                                    <div>
+                                        <p class="font-display font-bold text-sm sm:text-base tracking-tight">Manin DP</p>
+                                        <p class="text-xs text-olive-200">Computer Science & EdTech</p>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-xl bg-olive-600/90 text-white text-xs font-bold border border-olive-400/30">
+                                        4 Languages
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Animated Counters & Teaching Philosophy Section -->
+    <section id="about" class="py-16 sm:py-24 bg-white border-y border-cream-200 relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Animated Metrics Row -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-16">
+                <div class="reveal p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-300 hover:-translate-y-1 transition-all text-center shadow-sm">
+                    <div class="w-11 h-11 mx-auto mb-3 rounded-2xl bg-olive-100 text-olive-700 flex items-center justify-center">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-display text-3xl sm:text-4xl font-extrabold text-stone-900">
+                        <span class="counter" data-target="100">0</span>+
+                    </p>
+                    <p class="text-xs sm:text-sm text-stone-600 font-medium mt-1">Students Mentored</p>
+                </div>
+
+                <div class="reveal delay-100 p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-300 hover:-translate-y-1 transition-all text-center shadow-sm">
+                    <div class="w-11 h-11 mx-auto mb-3 rounded-2xl bg-olive-100 text-olive-700 flex items-center justify-center">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-display text-3xl sm:text-4xl font-extrabold text-stone-900">
+                        <span class="counter" data-target="10">0</span>+
+                    </p>
+                    <p class="text-xs sm:text-sm text-stone-600 font-medium mt-1">Years in Tech & Education</p>
+                </div>
+
+                <div class="reveal delay-200 p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-300 hover:-translate-y-1 transition-all text-center shadow-sm">
+                    <div class="w-11 h-11 mx-auto mb-3 rounded-2xl bg-olive-100 text-olive-700 flex items-center justify-center">
+                        <i data-lucide="languages" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-display text-3xl sm:text-4xl font-extrabold text-stone-900">
+                        <span class="counter" data-target="4">0</span>
+                    </p>
+                    <p class="text-xs sm:text-sm text-stone-600 font-medium mt-1">Languages Spoken</p>
+                </div>
+
+                <div class="reveal delay-300 p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-300 hover:-translate-y-1 transition-all text-center shadow-sm">
+                    <div class="w-11 h-11 mx-auto mb-3 rounded-2xl bg-olive-100 text-olive-700 flex items-center justify-center">
+                        <i data-lucide="map-pin" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-display text-3xl sm:text-4xl font-extrabold text-stone-900">
+                        <span class="counter" data-target="2">0</span> States
+                    </p>
+                    <p class="text-xs sm:text-sm text-stone-600 font-medium mt-1">Kerala & Maharashtra</p>
+                </div>
+            </div>
+
+            <!-- Philosophy Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                <div class="lg:col-span-6 reveal">
+                    <span class="text-xs font-bold uppercase tracking-widest text-olive-600">Pedagogical Vision</span>
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-900 mt-1.5 mb-5 leading-tight">
+                        Bridging Child-Centered Pedagogy with Modern Technology
+                    </h2>
+                    <div class="space-y-4 text-stone-600 text-sm sm:text-base leading-relaxed">
+                        <p>
+                            Equipped with a <strong class="text-stone-900">B.Sc. in Computer Science</strong> and a <strong class="text-stone-900">Diploma in Elementary Education (D.El.Ed.)</strong>, I design learning experiences that demystify computing for every age group.
+                        </p>
+                        <p>
+                            From sparking early logical thinking in Classes 1–4 with <strong class="text-olive-700">ScratchJr & Scratch</strong>, to mentoring secondary students in <strong class="text-olive-700">Python, C++, and AI Prompt Engineering</strong>, I ensure every classroom session is interactive, disciplined, and inclusive.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4 reveal delay-200">
+                    <div class="p-5 rounded-2xl bg-olive-50/70 border border-olive-100 hover:bg-olive-50 transition">
+                        <div class="w-10 h-10 rounded-xl bg-olive-700 text-white flex items-center justify-center mb-3">
+                            <i data-lucide="blocks" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-stone-900 text-base mb-1">Hands-On Lab Mastery</h3>
+                        <p class="text-xs sm:text-sm text-stone-600">Managing 30+ student lab sessions with strict safety and zero hardware/software downtime.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-olive-50/70 border border-olive-100 hover:bg-olive-50 transition">
+                        <div class="w-10 h-10 rounded-xl bg-olive-700 text-white flex items-center justify-center mb-3">
+                            <i data-lucide="database" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-stone-900 text-base mb-1">School ERP Administration</h3>
+                        <p class="text-xs sm:text-sm text-stone-600">Streamlining student records, academic progress tracking, and institutional workflows.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-olive-50/70 border border-olive-100 hover:bg-olive-50 transition">
+                        <div class="w-10 h-10 rounded-xl bg-olive-700 text-white flex items-center justify-center mb-3">
+                            <i data-lucide="film" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-stone-900 text-base mb-1">Multimedia & Branding</h3>
+                        <p class="text-xs sm:text-sm text-stone-600">Creating digital illustrations, graphics, and audio-visual media for school events & lessons.</p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-olive-50/70 border border-olive-100 hover:bg-olive-50 transition">
+                        <div class="w-10 h-10 rounded-xl bg-olive-700 text-white flex items-center justify-center mb-3">
+                            <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-stone-900 text-base mb-1">Empathetic Counseling</h3>
+                        <p class="text-xs sm:text-sm text-stone-600">Tailoring explanations to individual learning styles and tracking outcomes via analytics.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Animated Experience Timeline -->
+    <section id="experience" class="py-16 sm:py-24 bg-cream-50 relative">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12 reveal">
+                <span class="text-xs font-bold uppercase tracking-widest text-olive-600">Career Trajectory</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-900 mt-1.5 mb-3">
+                    Professional Experience
+                </h2>
+                <p class="text-sm sm:text-base text-stone-600">
+                    Filter through my roles across school teaching, EdTech counseling, and systems programming.
+                </p>
+
+                <!-- Filter Controls -->
+                <div class="inline-flex flex-wrap justify-center gap-2 mt-6 p-1.5 bg-cream-200/80 rounded-2xl border border-cream-300/60 no-print">
+                    <button onclick="filterExperience('all')" class="exp-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-olive-700 text-white shadow-sm transition-all" data-filter="all">
+                        All Experience (5)
+                    </button>
+                    <button onclick="filterExperience('teaching')" class="exp-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-stone-700 hover:bg-white/70 transition-all" data-filter="teaching">
+                        Teaching & EdTech
+                    </button>
+                    <button onclick="filterExperience('tech')" class="exp-filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-stone-700 hover:bg-white/70 transition-all" data-filter="tech">
+                        Programming & Systems
+                    </button>
+                </div>
+            </div>
+
+            <!-- Timeline Container with Animated Scroll Fill Line -->
+            <div class="relative ml-3 sm:ml-6" id="timeline-wrapper">
+                <!-- Static Background Track -->
+                <div class="absolute left-0 top-2 bottom-2 w-0.5 bg-olive-200"></div>
+                <!-- Dynamic Scroll Progress Line -->
+                <div id="timeline-progress-line" class="absolute left-0 top-2 w-0.5 bg-gradient-to-b from-olive-600 via-olive-500 to-emerald-500 transition-all duration-150" style="height: 0%;"></div>
+
+                <div class="space-y-8" id="experience-list">
+
+                    <!-- Role 1 -->
+                    <div class="exp-item reveal relative pl-7 sm:pl-10 transition-all duration-300" data-category="teaching">
+                        <span class="absolute -left-[7px] top-6 w-4 h-4 rounded-full bg-olive-600 ring-4 ring-cream-50 shadow-sm"></span>
+                        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-cream-200 shadow-sm hover:shadow-xl hover:border-olive-300 transition-all duration-300">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                                <div>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-olive-100 text-olive-800 text-xs font-bold mb-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-olive-600 animate-pulse"></span> Present Role
+                                    </span>
+                                    <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">TGT Computer Science</h3>
+                                    <p class="text-sm font-semibold text-olive-700">Jayshreeben Amrishbhai Patel School • Waghadi, Maharashtra</p>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold self-start">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2025 – Present
+                                </span>
+                            </div>
+                            <ul class="space-y-2.5 text-sm text-stone-600">
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Delivered engaging Computer Science curricula and maintained classroom discipline to foster high student performance.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Administered the school Enterprise Resource Planning (ERP) platform to ensure accurate student records and streamlined workflows.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Managed computer laboratory hardware, software setups, and routine maintenance to guarantee zero operational downtime.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Produced digital graphics and audio-visual media for institutional branding, school events, and academic presentations.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Integrated modern multimedia tools into daily instructional delivery to enhance student engagement and concept retention.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Role 2 -->
+                    <div class="exp-item reveal relative pl-7 sm:pl-10 transition-all duration-300" data-category="teaching">
+                        <span class="absolute -left-[7px] top-6 w-4 h-4 rounded-full bg-olive-500 ring-4 ring-cream-50"></span>
+                        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-cream-200 shadow-sm hover:shadow-xl hover:border-olive-300 transition-all duration-300">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                                <div>
+                                    <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">Asst. Teacher Computer</h3>
+                                    <p class="text-sm font-semibold text-olive-700">CSI English Medium School • Kerala, India</p>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold self-start">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2024 – 2025
+                                </span>
+                            </div>
+                            <ul class="space-y-2.5 text-sm text-stone-600">
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Taught foundational digital literacy, hardware basics, and computer safety to lower primary students (Classes 1–4).</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Introduced early computational thinking and logic through block-based coding platforms like <strong class="text-stone-800">ScratchJr and Scratch</strong>.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Guided young learners in basic document creation, keyboarding, and digital art using MS Office Suite and Paint.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Managed weekly computer lab sessions of 30+ students and recorded practical performance using the school ERP system.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Role 3 -->
+                    <div class="exp-item reveal relative pl-7 sm:pl-10 transition-all duration-300" data-category="teaching">
+                        <span class="absolute -left-[7px] top-6 w-4 h-4 rounded-full bg-olive-500 ring-4 ring-cream-50"></span>
+                        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-cream-200 shadow-sm hover:shadow-xl hover:border-olive-300 transition-all duration-300">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                                <div>
+                                    <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">Education Counselor</h3>
+                                    <p class="text-sm font-semibold text-olive-700">Byju's Edutech</p>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold self-start">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2020 – 2022
+                                </span>
+                            </div>
+                            <ul class="space-y-2.5 text-sm text-stone-600">
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Guided 100+ students to achieve academic success and personal growth.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Collaborated with educators to enhance curriculum relevance and advocated for student-centered support policies.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Trained new counselors and utilized data analytics to track student progress and outcomes effectively.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Role 4 -->
+                    <div class="exp-item reveal relative pl-7 sm:pl-10 transition-all duration-300" data-category="tech">
+                        <span class="absolute -left-[7px] top-6 w-4 h-4 rounded-full bg-stone-400 ring-4 ring-cream-50"></span>
+                        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-cream-200 shadow-sm hover:shadow-xl hover:border-olive-300 transition-all duration-300">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                                <div>
+                                    <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">Tutor & Programmer</h3>
+                                    <p class="text-sm font-semibold text-olive-700">JTEC</p>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold self-start">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2021 – 2022
+                                </span>
+                            </div>
+                            <ul class="space-y-2.5 text-sm text-stone-600">
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Designed structured learning plans, tutorials, and coding exercises to explain complex <strong class="text-stone-800">C++ concepts</strong> clearly.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Facilitated independent problem-solving, practiced active listening, and delivered constructive feedback on student code.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Role 5 -->
+                    <div class="exp-item reveal relative pl-7 sm:pl-10 transition-all duration-300" data-category="tech">
+                        <span class="absolute -left-[7px] top-6 w-4 h-4 rounded-full bg-stone-400 ring-4 ring-cream-50"></span>
+                        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-cream-200 shadow-sm hover:shadow-xl hover:border-olive-300 transition-all duration-300">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                                <div>
+                                    <h3 class="font-display text-lg sm:text-xl font-bold text-stone-900">Programmer & System Admin</h3>
+                                    <p class="text-sm font-semibold text-olive-700">JTEC</p>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold self-start">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-olive-600"></i> 2014 – 2017
+                                </span>
+                            </div>
+                            <ul class="space-y-2.5 text-sm text-stone-600">
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Managed group programming assignments and maintained student lab systems.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-olive-600 shrink-0 mt-0.5"></i>
+                                    <span>Debugged production issues, optimized code efficiency, and contributed across the full Software Development Life Cycle (SDLC).</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Skills & Competency Matrix -->
+    <section id="skills" class="py-16 sm:py-24 bg-white border-t border-cream-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12 reveal">
+                <span class="text-xs font-bold uppercase tracking-widest text-olive-600">Capabilities & Stack</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-900 mt-1.5 mb-3">
+                    Core Competencies & Technical Tools
+                </h2>
+                <p class="text-sm sm:text-base text-stone-600">
+                    Switch between my pedagogical leadership competencies and technical programming stack.
+                </p>
+
+                <!-- Skill View Toggle -->
+                <div class="inline-flex gap-2 mt-6 p-1.5 bg-cream-100 rounded-2xl border border-cream-200 no-print">
+                    <button onclick="switchSkillTab('competencies')" id="tab-competencies" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-olive-700 text-white shadow-sm transition-all">
+                        Core Competencies (8)
+                    </button>
+                    <button onclick="switchSkillTab('tools')" id="tab-tools" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-stone-700 hover:bg-white transition-all">
+                        Technical Tool Stack (8)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel 1: Core Competencies Grid -->
+            <div id="panel-competencies" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 reveal">
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-400 hover:-translate-y-1 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-olive-100 text-olive-700 group-hover:bg-olive-700 group-hover:text-white flex items-center justify-center mb-4 transition-colors">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-stone-900 text-base mb-1.5">Curriculum & Technical Instruction</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">Structured lesson planning for primary through secondary CS learners.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-400 hover:-translate-y-1 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-olive-100 text-olive-700 group-hover:bg-olive-700 group-hover:text-white flex items-center justify-center mb-4 transition-colors">
+                        <i data-lucide="users-round" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-stone-900 text-base mb-1.5">Pedagogy & Classroom Management</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">D.El.Ed. certified positive discipline and student-centric engagement.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-400 hover:-translate-y-1 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-olive-100 text-olive-700 group-hover:bg-olive-700 group-hover:text-white flex items-center justify-center mb-4 transition-colors">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-stone-900 text-base mb-1.5">EdTech & ERP Systems</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">School ERP platform administration, grading, and digital records.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-400 hover:-translate-y-1 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-olive-100 text-olive-700 group-hover:bg-olive-700 group-hover:text-white flex items-center justify-center mb-4 transition-colors">
+                        <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-stone-900 text-base mb-1.5">Graphic Design & Illustration</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">Visual branding, posters, and educational digital illustrations.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-400 hover:-translate-y-1 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-olive-100 text-olive-700 group-hover:bg-olive-700 group-hover:text-white flex items-center justify-center mb-4 transition-colors">
+                        <i data-lucide="video" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-stone-900 text-base mb-1.5">Audio-Visual Editing</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">Multimedia production for school events and interactive lectures.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-400 hover:-translate-y-1 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-olive-100 text-olive-700 group-hover:bg-olive-700 group-hover:text-white flex items-center justify-center mb-4 transition-colors">
+                        <i data-lucide="server" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-stone-900 text-base mb-1.5">Lab Administration</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">Hardware diagnostics, software deployment, and zero-downtime labs.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-400 hover:-translate-y-1 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-olive-100 text-olive-700 group-hover:bg-olive-700 group-hover:text-white flex items-center justify-center mb-4 transition-colors">
+                        <i data-lucide="bot" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-stone-900 text-base mb-1.5">Applied AI & Tech Literacy</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">Teaching safe, ethical, and practical AI literacy in modern classrooms.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-cream-50 border border-cream-200 hover:border-olive-400 hover:-translate-y-1 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-olive-100 text-olive-700 group-hover:bg-olive-700 group-hover:text-white flex items-center justify-center mb-4 transition-colors">
+                        <i data-lucide="code-2" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-stone-900 text-base mb-1.5">Practical Programming</h3>
+                    <p class="text-xs text-stone-600 leading-relaxed">Hands-on coding mentorship from Scratch blocks to Python & C++.</p>
+                </div>
+            </div>
+
+            <!-- Panel 2: Technical Tool Stack Grid -->
+            <div id="panel-tools" class="hidden grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="p-6 rounded-3xl bg-olive-900 text-white border border-olive-700 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono font-bold text-lg">Python</span>
+                        <span class="text-xs px-2.5 py-1 rounded-lg bg-olive-700 text-olive-100 font-semibold">Core</span>
+                    </div>
+                    <div class="w-full h-2 bg-olive-950 rounded-full overflow-hidden">
+                        <div class="h-full bg-olive-400 rounded-full" style="width: 92%"></div>
+                    </div>
+                    <p class="text-xs text-olive-200 mt-3">Scripting, logic building & student programming labs.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-olive-900 text-white border border-olive-700 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono font-bold text-lg">C++</span>
+                        <span class="text-xs px-2.5 py-1 rounded-lg bg-olive-700 text-olive-100 font-semibold">Certified</span>
+                    </div>
+                    <div class="w-full h-2 bg-olive-950 rounded-full overflow-hidden">
+                        <div class="h-full bg-olive-400 rounded-full" style="width: 95%"></div>
+                    </div>
+                    <p class="text-xs text-olive-200 mt-3">OOP concepts, algorithms, debugging & tutoring.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-olive-900 text-white border border-olive-700 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono font-bold text-lg">C Programming</span>
+                        <span class="text-xs px-2.5 py-1 rounded-lg bg-olive-700 text-olive-100 font-semibold">Foundational</span>
+                    </div>
+                    <div class="w-full h-2 bg-olive-950 rounded-full overflow-hidden">
+                        <div class="h-full bg-olive-400 rounded-full" style="width: 90%"></div>
+                    </div>
+                    <p class="text-xs text-olive-200 mt-3">Procedural logic, data structures & memory basics.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-olive-900 text-white border border-olive-700 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono font-bold text-lg">HTML & Web</span>
+                        <span class="text-xs px-2.5 py-1 rounded-lg bg-olive-700 text-olive-100 font-semibold">Frontend</span>
+                    </div>
+                    <div class="w-full h-2 bg-olive-950 rounded-full overflow-hidden">
+                        <div class="h-full bg-olive-400 rounded-full" style="width: 88%"></div>
+                    </div>
+                    <p class="text-xs text-olive-200 mt-3">Web page structure, classroom demos & digital portfolios.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-olive-900 text-white border border-olive-700 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono font-bold text-lg">App Developing</span>
+                        <span class="text-xs px-2.5 py-1 rounded-lg bg-olive-700 text-olive-100 font-semibold">Builder</span>
+                    </div>
+                    <div class="w-full h-2 bg-olive-950 rounded-full overflow-hidden">
+                        <div class="h-full bg-olive-400 rounded-full" style="width: 84%"></div>
+                    </div>
+                    <p class="text-xs text-olive-200 mt-3">Educational apps, Scratch/ScratchJr & student projects.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-olive-900 text-white border border-olive-700 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono font-bold text-lg">AI Prompt Eng.</span>
+                        <span class="text-xs px-2.5 py-1 rounded-lg bg-olive-700 text-olive-100 font-semibold">Modern AI</span>
+                    </div>
+                    <div class="w-full h-2 bg-olive-950 rounded-full overflow-hidden">
+                        <div class="h-full bg-olive-400 rounded-full" style="width: 92%"></div>
+                    </div>
+                    <p class="text-xs text-olive-200 mt-3">Curriculum generation, AI workflows & student literacy.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-olive-900 text-white border border-olive-700 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono font-bold text-lg">Microsoft Office</span>
+                        <span class="text-xs px-2.5 py-1 rounded-lg bg-olive-700 text-olive-100 font-semibold">Expert</span>
+                    </div>
+                    <div class="w-full h-2 bg-olive-950 rounded-full overflow-hidden">
+                        <div class="h-full bg-olive-400 rounded-full" style="width: 96%"></div>
+                    </div>
+                    <p class="text-xs text-olive-200 mt-3">Word, Excel analytics, PowerPoint instructional decks.</p>
+                </div>
+
+                <div class="p-6 rounded-3xl bg-olive-900 text-white border border-olive-700 shadow-md">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-mono font-bold text-lg">Google Workspace</span>
+                        <span class="text-xs px-2.5 py-1 rounded-lg bg-olive-700 text-olive-100 font-semibold">Cloud EdTech</span>
+                    </div>
+                    <div class="w-full h-2 bg-olive-950 rounded-full overflow-hidden">
+                        <div class="h-full bg-olive-400 rounded-full" style="width: 95%"></div>
+                    </div>
+                    <p class="text-xs text-olive-200 mt-3">Docs, Sheets, Slides, Forms & cloud classroom tools.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multilingual Advantage Showcase -->
+    <section id="languages" class="py-16 sm:py-20 bg-olive-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 24px 24px;"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-2xl mx-auto mb-12 reveal">
+                <span class="text-xs font-bold uppercase tracking-widest text-olive-300">Communication Bridge</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-1.5 mb-3">
+                    Multilingual Classroom Advantage
+                </h2>
+                <p class="text-sm sm:text-base text-olive-100/85">
+                    Proven teaching success across both <strong class="text-white">Kerala</strong> and <strong class="text-white">Maharashtra</strong>, connecting effortlessly with diverse student communities.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- English -->
+                <div class="reveal p-6 rounded-3xl bg-olive-800/80 border border-olive-700/80 backdrop-blur-sm text-center hover:-translate-y-1 transition-all">
+                    <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-24 h-24 transform -rotate-90">
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-olive-950" />
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="12" class="text-cream-200 transition-all duration-1000" />
+                        </svg>
+                        <span class="absolute font-mono font-bold text-lg text-white">96%</span>
+                    </div>
+                    <h3 class="font-display text-xl font-bold text-white">English</h3>
+                    <span class="inline-block mt-1 px-3 py-0.5 rounded-full bg-olive-700 text-olive-100 text-xs font-semibold">Fluent</span>
+                </div>
+
+                <!-- Malayalam -->
+                <div class="reveal delay-100 p-6 rounded-3xl bg-olive-800/80 border border-olive-700/80 backdrop-blur-sm text-center hover:-translate-y-1 transition-all">
+                    <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-24 h-24 transform -rotate-90">
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-olive-950" />
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="0" class="text-cream-200 transition-all duration-1000" />
+                        </svg>
+                        <span class="absolute font-mono font-bold text-lg text-white">100%</span>
+                    </div>
+                    <h3 class="font-display text-xl font-bold text-white">Malayalam</h3>
+                    <span class="inline-block mt-1 px-3 py-0.5 rounded-full bg-olive-700 text-olive-100 text-xs font-semibold">Fluent</span>
+                </div>
+
+                <!-- Tamil -->
+                <div class="reveal delay-200 p-6 rounded-3xl bg-olive-800/80 border border-olive-700/80 backdrop-blur-sm text-center hover:-translate-y-1 transition-all">
+                    <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-24 h-24 transform -rotate-90">
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-olive-950" />
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="20" class="text-cream-200 transition-all duration-1000" />
+                        </svg>
+                        <span class="absolute font-mono font-bold text-lg text-white">92%</span>
+                    </div>
+                    <h3 class="font-display text-xl font-bold text-white">Tamil</h3>
+                    <span class="inline-block mt-1 px-3 py-0.5 rounded-full bg-olive-700 text-olive-100 text-xs font-semibold">Fluent</span>
+                </div>
+
+                <!-- Hindi -->
+                <div class="reveal delay-300 p-6 rounded-3xl bg-olive-800/80 border border-olive-700/80 backdrop-blur-sm text-center hover:-translate-y-1 transition-all">
+                    <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-24 h-24 transform -rotate-90">
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-olive-950" />
+                            <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="62" class="text-olive-400 transition-all duration-1000" />
+                        </svg>
+                        <span class="absolute font-mono font-bold text-lg text-white">75%</span>
+                    </div>
+                    <h3 class="font-display text-xl font-bold text-white">Hindi</h3>
+                    <span class="inline-block mt-1 px-3 py-0.5 rounded-full bg-olive-700 text-olive-200 text-xs font-semibold">Intermediate</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education & Credentials Timeline -->
+    <section id="education" class="py-16 sm:py-24 bg-cream-50 border-t border-cream-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-14 reveal">
+                <span class="text-xs font-bold uppercase tracking-widest text-olive-600">Academic Credentials</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-900 mt-1.5 mb-3">
+                    Education & Certifications
+                </h2>
+                <p class="text-sm sm:text-base text-stone-600">
+                    Academic foundation combining teacher training, computer science, and hardware engineering.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- D.El.Ed. -->
+                <div class="reveal bg-white p-6 rounded-3xl border-2 border-olive-600/30 shadow-sm hover:shadow-lg transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="px-3 py-1 rounded-xl bg-olive-100 text-olive-800 text-xs font-bold">Pedagogy Degree</span>
+                        <i data-lucide="award" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">D.El.Ed. (Diploma in Elementary Education)</h3>
+                    <p class="text-sm text-stone-600 mt-1.5">Professional Elementary Teacher Education Qualification</p>
+                </div>
+
+                <!-- B.Sc. Computer Science -->
+                <div class="reveal delay-100 bg-white p-6 rounded-3xl border border-cream-200 shadow-sm hover:shadow-lg transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="px-3 py-1 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold">2017 – 2020</span>
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">B.Sc. Computer Science</h3>
+                    <p class="text-sm text-olive-700 font-semibold mt-1.5">Emmanuel College, Vazhichal, Kerala, India</p>
+                </div>
+
+                <!-- Certificate in C++ -->
+                <div class="reveal delay-200 bg-white p-6 rounded-3xl border border-cream-200 shadow-sm hover:shadow-lg transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="px-3 py-1 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold">2020</span>
+                        <i data-lucide="code" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">Certificate in C++</h3>
+                    <p class="text-sm text-olive-700 font-semibold mt-1.5">JTEC, ITEC</p>
+                </div>
+
+                <!-- Diploma in Computer Hardware -->
+                <div class="reveal bg-white p-6 rounded-3xl border border-cream-200 shadow-sm hover:shadow-lg transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="px-3 py-1 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold">2013 – 2014</span>
+                        <i data-lucide="cpu" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">Diploma in Computer Hardware</h3>
+                    <p class="text-sm text-olive-700 font-semibold mt-1.5">JTEC, ITEC</p>
+                </div>
+
+                <!-- Certificate in Computer Teacher Training -->
+                <div class="reveal delay-100 bg-white p-6 rounded-3xl border border-cream-200 shadow-sm hover:shadow-lg transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="px-3 py-1 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold">2012 – 2013</span>
+                        <i data-lucide="presentation" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">Certificate in Computer Teacher Training</h3>
+                    <p class="text-sm text-olive-700 font-semibold mt-1.5">JTEC, ITEC</p>
+                </div>
+
+                <!-- HSC & SSLC -->
+                <div class="reveal delay-200 bg-white p-6 rounded-3xl border border-cream-200 shadow-sm hover:shadow-lg transition-all">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="px-3 py-1 rounded-xl bg-cream-100 text-stone-700 text-xs font-bold">HSC (2011–2012) & SSLC</span>
+                        <i data-lucide="school" class="w-5 h-5 text-olive-600"></i>
+                    </div>
+                    <h3 class="font-display text-lg font-bold text-stone-900">Higher Secondary & SSLC</h3>
+                    <p class="text-sm text-olive-700 font-semibold mt-1.5">St. Johns HSS Undancode, Kerala</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Contact & Footer Section -->
+    <section id="contact" class="py-16 sm:py-24 bg-stone-900 text-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+                
+                <!-- Direct Contact Cards -->
+                <div class="lg:col-span-6 reveal">
+                    <span class="text-xs font-bold uppercase tracking-widest text-olive-400">Get In Touch</span>
+                    <h2 class="font-display text-3xl sm:text-4xl font-bold text-white mt-1.5 mb-4">
+                        Ready to Bring Digital Excellence to Your School
+                    </h2>
+                    <p class="text-stone-300 text-sm sm:text-base leading-relaxed mb-8">
+                        Connect with me regarding TGT Computer Science roles, EdTech coordination, ERP administration, or student coding workshops.
+                    </p>
+
+                    <div class="space-y-4">
+                        <!-- Phone -->
+                        <div class="p-4 rounded-2xl bg-stone-800/80 border border-stone-700 flex items-center justify-between gap-4 hover:border-olive-500 transition">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 rounded-xl bg-olive-700/40 text-olive-300 flex items-center justify-center shrink-0">
+                                    <i data-lucide="phone" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-stone-400 font-medium">Direct Phone / WhatsApp</p>
+                                    <a href="tel:+917994147114" class="text-sm sm:text-base font-bold text-white hover:text-olive-300 transition">+91 7994147114</a>
+                                </div>
+                            </div>
+                            <button onclick="copyText('+91 7994147114', 'Phone number')" class="px-3.5 py-2 rounded-xl bg-olive-700 hover:bg-olive-600 text-xs font-semibold text-white transition flex items-center gap-1.5 no-print">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+                            </button>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="p-4 rounded-2xl bg-stone-800/80 border border-stone-700 flex items-center justify-between gap-4 hover:border-olive-500 transition">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <div class="w-11 h-11 rounded-xl bg-olive-700/40 text-olive-300 flex items-center justify-center shrink-0">
+                                    <i data-lucide="mail" class="w-5 h-5"></i>
+                                </div>
+                                <div class="truncate">
+                                    <p class="text-xs text-stone-400 font-medium">Email Address</p>
+                                    <a href="mailto:manindp123@gmail.com" class="text-sm sm:text-base font-bold text-white hover:text-olive-300 transition truncate block">manindp123@gmail.com</a>
+                                </div>
+                            </div>
+                            <button onclick="copyText('manindp123@gmail.com', 'Email address')" class="px-3.5 py-2 rounded-xl bg-olive-700 hover:bg-olive-600 text-xs font-semibold text-white transition flex items-center gap-1.5 shrink-0 no-print">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+                            </button>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="p-4 rounded-2xl bg-stone-800/80 border border-stone-700 flex items-start gap-3.5">
+                            <div class="w-11 h-11 rounded-xl bg-olive-700/40 text-olive-300 flex items-center justify-center shrink-0 mt-0.5">
+                                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-stone-400 font-medium">Address</p>
+                                <p class="text-sm text-stone-200 mt-1 leading-relaxed">
+                                    Deepnam, Kottukonam, Elluvila PO, TVM, Kerala, India 695504
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Inquiry Form -->
+                <div id="contact-form-card" class="lg:col-span-6 reveal delay-200 bg-white text-stone-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+                    <h3 class="font-display text-xl sm:text-2xl font-bold text-stone-900 mb-1">Send a Quick Message</h3>
+                    <p class="text-xs sm:text-sm text-stone-500 mb-6">Draft a direct email to Manin DP in seconds.</p>
+
+                    <form id="contact-form" class="space-y-4">
+                        <div>
+                            <label for="sender-name" class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Your Name / School</label>
+                            <input type="text" id="sender-name" required placeholder="e.g., Principal, Delhi Public School" class="w-full px-4 py-3 rounded-xl bg-cream-50 border border-stone-200 text-sm focus:outline-none focus:border-olive-600 focus:ring-2 focus:ring-olive-600/20 transition">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="sender-email" class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Your Email</label>
+                                <input type="email" id="sender-email" required placeholder="you@school.edu" class="w-full px-4 py-3 rounded-xl bg-cream-50 border border-stone-200 text-sm focus:outline-none focus:border-olive-600 focus:ring-2 focus:ring-olive-600/20 transition">
+                            </div>
+                            <div>
+                                <label for="inquiry-type" class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Topic</label>
+                                <select id="inquiry-type" class="w-full px-4 py-3 rounded-xl bg-cream-50 border border-stone-200 text-sm focus:outline-none focus:border-olive-600 focus:ring-2 focus:ring-olive-600/20 transition">
+                                    <option value="Teaching Role">TGT / Computer Teacher Role</option>
+                                    <option value="EdTech & ERP">EdTech & Lab Administration</option>
+                                    <option value="Coding Workshop">Coding / AI Literacy Session</option>
+                                    <option value="General">General Inquiry</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="sender-message" class="block text-xs font-bold uppercase tracking-wider text-stone-600 mb-1.5">Message</label>
+                            <textarea id="sender-message" rows="4" required placeholder="Hello Manin, we would love to connect regarding..." class="w-full px-4 py-3 rounded-xl bg-cream-50 border border-stone-200 text-sm focus:outline-none focus:border-olive-600 focus:ring-2 focus:ring-olive-600/20 transition resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="magnetic-btn w-full py-3.5 px-6 rounded-xl bg-olive-700 hover:bg-olive-600 text-white font-semibold text-sm sm:text-base shadow-lg transition flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>Compose & Send Email</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-stone-950 text-stone-400 py-8 border-t border-stone-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-olive-500"></span>
+                <span class="font-display font-bold text-stone-200">MANIN DP</span> — Computer Science Educator & EdTech Specialist
+            </div>
+            <p>&copy; 2026 Manin DP. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Animations & Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Initialize Lucide Icons
+            lucide.createIcons();
+
+            // 2. Typewriter Role Switcher
+            const roles = [
+                'TGT Computer Science Educator',
+                'Educational Technologist',
+                'ERP & Lab Administrator',
+                'Multilingual Mentor'
+            ];
+            let roleIdx = 0;
+            let charIdx = roles[0].length;
+            let isDeleting = true;
+            const typewriterEl = document.getElementById('typewriter-text');
+
+            function typeLoop() {
+                const currentRole = roles[roleIdx];
+                if (isDeleting) {
+                    charIdx--;
+                    typewriterEl.textContent = currentRole.substring(0, charIdx);
+                    if (charIdx === 0) {
+                        isDeleting = false;
+                        roleIdx = (roleIdx + 1) % roles.length;
+                        setTimeout(typeLoop, 350);
+                        return;
+                    }
+                    setTimeout(typeLoop, 38);
+                } else {
+                    charIdx++;
+                    typewriterEl.textContent = currentRole.substring(0, charIdx);
+                    if (charIdx === currentRole.length) {
+                        isDeleting = true;
+                        setTimeout(typeLoop, 2200);
+                        return;
+                    }
+                    setTimeout(typeLoop, 65);
+                }
+            }
+            setTimeout(typeLoop, 2200);
+
+            // 3. Interactive 3D Tilt Effect on Portrait Card
+            const tiltCard = document.getElementById('portrait-tilt-card');
+            if (tiltCard && window.matchMedia('(pointer: fine)').matches) {
+                tiltCard.addEventListener('mousemove', (e) => {
+                    const rect = tiltCard.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -8;
+                    const rotateY = ((x - centerX) / centerX) * 8;
+                    tiltCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                tiltCard.addEventListener('mouseleave', () => {
+                    tiltCard.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+                });
+            }
+
+            // 4. Magnetic Hover Effect on Buttons
+            document.querySelectorAll('.magnetic-btn').forEach(btn => {
+                if (window.matchMedia('(pointer: fine)').matches) {
+                    btn.addEventListener('mousemove', (e) => {
+                        const rect = btn.getBoundingClientRect();
+                        const x = (e.clientX - rect.left - rect.width / 2) * 0.18;
+                        const y = (e.clientY - rect.top - rect.height / 2) * 0.18;
+                        btn.style.transform = `translate(${x}px, ${y}px)`;
+                    });
+                    btn.addEventListener('mouseleave', () => {
+                        btn.style.transform = 'translate(0px, 0px)';
+                    });
+                }
+            });
+
+            // 5. Scroll Reveal Observer & Animated Number Counters
+            let countersStarted = false;
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        
+                        // Trigger counters when stats come into view
+                        if (!countersStarted && entry.target.querySelector('.counter')) {
+                            countersStarted = true;
+                            document.querySelectorAll('.counter').forEach(counter => {
+                                const target = +counter.getAttribute('data-target');
+                                const duration = 1400;
+                                const stepTime = 20;
+                                const steps = duration / stepTime;
+                                const increment = target / steps;
+                                let current = 0;
+                                const timer = setInterval(() => {
+                                    current += increment;
+                                    if (current >= target) {
+                                        counter.textContent = target;
+                                        clearInterval(timer);
+                                    } else {
+                                        counter.textContent = Math.floor(current);
+                                    }
+                                }, stepTime);
+                            });
+                        }
+                    }
+                });
+            }, { threshold: 0.12 });
+
+            document.querySelectorAll('.reveal, .reveal-scale').forEach(el => revealObserver.observe(el));
+
+            // 6. Scroll Progress Bar & Timeline Glow Line
+            const scrollProgress = document.getElementById('scroll-progress');
+            const timelineWrapper = document.getElementById('timeline-wrapper');
+            const timelineLine = document.getElementById('timeline-progress-line');
+
+            window.addEventListener('scroll', () => {
+                // Top progress bar
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                scrollProgress.style.width = `${scrollPercent}%`;
+
+                // Timeline progress line
+                if (timelineWrapper && timelineLine) {
+                    const rect = timelineWrapper.getBoundingClientRect();
+                    const windowHeight = window.innerHeight;
+                    const visibleStart = windowHeight * 0.7;
+                    const progress = Math.min(Math.max((visibleStart - rect.top) / rect.height, 0), 1);
+                    timelineLine.style.height = `${progress * 100}%`;
+                }
+            }, { passive: true });
+
+            // 7. Hero HTML5 Geometric Particle Canvas
+            const canvas = document.getElementById('hero-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                let width, height;
+
+                function resizeCanvas() {
+                    width = canvas.width = canvas.offsetWidth;
+                    height = canvas.height = canvas.offsetHeight;
+                }
+                window.addEventListener('resize', resizeCanvas);
+                resizeCanvas();
+
+                const particleCount = Math.min(Math.floor((width * height) / 22000), 45);
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        radius: Math.random() * 2.5 + 1.5
+                    });
+                }
+
+                function animateCanvas() {
+                    ctx.clearRect(0, 0, width, height);
+                    for (let i = 0; i < particles.length; i++) {
+                        const p = particles[i];
+                        p.x += p.vx;
+                        p.y += p.vy;
+
+                        if (p.x < 0 || p.x > width) p.vx *= -1;
+                        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(85, 107, 47, 0.35)';
+                        ctx.fill();
+
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const p2 = particles[j];
+                            const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                            if (dist < 140) {
+                                ctx.beginPath();
+                                ctx.moveTo(p.x, p.y);
+                                ctx.lineTo(p2.x, p2.y);
+                                ctx.strokeStyle = `rgba(85, 107, 47, ${0.15 * (1 - dist / 140)})`;
+                                ctx.lineWidth = 1;
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                    requestAnimationFrame(animateCanvas);
+                }
+                animateCanvas();
+            }
+        });
+
+        // Mobile Navigation Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+        });
+
+        // Experience Timeline Filter
+        function filterExperience(category) {
+            const items = document.querySelectorAll('.exp-item');
+            const buttons = document.querySelectorAll('.exp-filter-btn');
+
+            buttons.forEach(btn => {
+                if (btn.dataset.filter === category) {
+                    btn.classList.add('bg-olive-700', 'text-white', 'shadow-sm');
+                    btn.classList.remove('text-stone-700', 'hover:bg-white/70');
+                } else {
+                    btn.classList.remove('bg-olive-700', 'text-white', 'shadow-sm');
+                    btn.classList.add('text-stone-700', 'hover:bg-white/70');
+                }
+            });
+
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                    setTimeout(() => item.classList.add('active'), 20);
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Skill Tabs Switcher
+        function switchSkillTab(tab) {
+            const compPanel = document.getElementById('panel-competencies');
+            const toolsPanel = document.getElementById('panel-tools');
+            const compBtn = document.getElementById('tab-competencies');
+            const toolsBtn = document.getElementById('tab-tools');
+
+            if (tab === 'competencies') {
+                compPanel.classList.remove('hidden');
+                compPanel.classList.add('grid');
+                toolsPanel.classList.add('hidden');
+                toolsPanel.classList.remove('grid');
+
+                compBtn.classList.add('bg-olive-700', 'text-white', 'shadow-sm');
+                compBtn.classList.remove('text-stone-700', 'hover:bg-white');
+                toolsBtn.classList.remove('bg-olive-700', 'text-white', 'shadow-sm');
+                toolsBtn.classList.add('text-stone-700', 'hover:bg-white');
+            } else {
+                toolsPanel.classList.remove('hidden');
+                toolsPanel.classList.add('grid');
+                compPanel.classList.add('hidden');
+                compPanel.classList.remove('grid');
+
+                toolsBtn.classList.add('bg-olive-700', 'text-white', 'shadow-sm');
+                toolsBtn.classList.remove('text-stone-700', 'hover:bg-white');
+                compBtn.classList.remove('bg-olive-700', 'text-white', 'shadow-sm');
+                compBtn.classList.add('text-stone-700', 'hover:bg-white');
+            }
+        }
+
+        // Toast Notification System
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border border-olive-600 bg-olive-900 text-white text-sm font-medium shadow-xl transform transition-all duration-300 translate-y-4 opacity-0';
+            toast.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-olive-300 shrink-0"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            requestAnimationFrame(() => toast.classList.remove('translate-y-4', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Copy to Clipboard
+        function copyText(text, label) {
+            const temp = document.createElement('input');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            try {
+                document.execCommand('copy');
+                showToast(`${label} copied to clipboard!`);
+            } catch (e) {
+                showToast(`Could not copy ${label}`);
+            }
+            document.body.removeChild(temp);
+        }
+
+        // Contact Form Handler
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('sender-name').value.trim();
+            const email = document.getElementById('sender-email').value.trim();
+            const topic = document.getElementById('inquiry-type').value;
+            const message = document.getElementById('sender-message').value.trim();
+
+            if (!name || !email || !message) return;
+
+            const subject = encodeURIComponent(`[Portfolio Inquiry - ${topic}] from ${name}`);
+            const body = encodeURIComponent(`From: ${name} (${email})\n\n${message}`);
+            
+            showToast(`Thank you, ${name}! Opening your email draft...`);
+            setTimeout(() => {
+                window.location.href = `mailto:manindp123@gmail.com?subject=${subject}&body=${body}`;
+            }, 750);
+            this.reset();
+        });
+    </script>
+</body>
+</html>
